@@ -1,37 +1,35 @@
 import { useState, useEffect } from "react";
 
-const useFetch = (url)=>{
-   const [isPending,setisPending] = useState(true);
-   const [error,seterror] = useState(false);
-   const [data, setdata] = useState([]);
-   useEffect(()=>{
-        check()
-},[url])
-const check =  async () => {
-    const res = await  fetch(url)
-       .then(res =>{
-        
-           if(!res.ok){
-               throw Error("No record");  
-           }
-           return res.json();
-       })
-       .then(data =>{
-           setdata(data.products);
-           setisPending(null);
-           seterror(null);
-       })  
-       .catch(err =>{
-           if(err.name === "AbortError"){
-               console.log('Cleaned');
-           }
-           else{
-               setisPending(null);
-               seterror(err.message);
-           }
-           
-       })}
-   return { data ,isPending, error};
-   }
+const useFetch = (url) => {
+   const [isPending, setIsPending] = useState(true);
+   const [error, setError] = useState(false);
+   const [data, setData] = useState([]);
 
-   export default useFetch;
+   useEffect(() => {
+       const check = async () => {
+           try {
+               const response = await fetch(url);
+               if (!response.ok) {
+                   throw new Error("No record");
+               }
+               const result = await response.json();
+               setData(result.products);
+               setIsPending(false);
+               setError(null);
+           } catch (err) {
+               if (err.name === "AbortError") {
+                   console.log('Cleaned');
+               } else {
+                   setIsPending(false);
+                   setError(err.message);
+               }
+           }
+       };
+
+       check();
+   }, [url]); // Dependency array includes 'url' only
+
+   return { data, isPending, error };
+};
+
+export default useFetch;
